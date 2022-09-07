@@ -1,7 +1,8 @@
-import 'package:flutter/foundation.dart';
+// import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'color.dart';
 
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
 class Palette {
   static const Color primary = Color(0xFFF9B771);
   static const Color text = Color(0xFF000000);
+  // static const Color url = Color(0xFFFB4C28);
 }
 
 class MyHomePage extends StatefulWidget {
@@ -122,8 +124,8 @@ class _MyHomePageState extends State<MyHomePage> {
             Padding(
               padding: const EdgeInsets.only(bottom: 50.0),
               child: QrImage(
-                data:
-                    "https://api.flutter.dev/flutter/material/material-library.html",
+                // data: "415646",
+                data: "https://pub.dev/packages/url_launcher/example",
                 version: QrVersions.auto,
                 size: 300.0,
               ),
@@ -214,15 +216,63 @@ class _QRViewExampleState extends State<QRViewExample> {
           Expanded(
             flex: 1,
             child: Center(
-              child: (result != null)
-                  ? Text(
-                      'Barcode Type: ${describeEnum(result!.format)}   Data: ${result!.code}')
-                  : const Text('Scan a code'),
+              child:
+                  // (result != null)
+                  // ? Text(
+                  //     'Barcode Type: ${describeEnum(result!.format)}   Data: ${result!.code}')
+                  // :
+                  Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 350,
+                    height: 50.0,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        // 文字顏色
+                        foregroundColor: generateMaterialColor(Palette.text),
+                        // 背景色
+                        backgroundColor:
+                            generateMaterialColor(Palette.primary).shade400,
+                      ).copyWith(
+                          // 陰影
+                          elevation: ButtonStyleButton.allOrNull(10.0)),
+                      onPressed: () {
+                        (result != null)
+                            ? _launchUrl(Uri.parse('${result!.code}'))
+                            : Navigator.pop(context, true);
+                      },
+                      child: (result != null)
+                          ? Text(
+                              '${result!.code}',
+                              style: const TextStyle(
+                                  fontSize: 16.0,
+                                  color: Color(0xFFFB4C28),
+                                  decoration: TextDecoration.underline),
+                              softWrap: true,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            )
+                          : const Text(
+                              '返回掃碼',
+                              style: TextStyle(fontSize: 16.0),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           )
         ],
       ),
     );
+  }
+
+  Future<void> _launchUrl(Uri url) async {
+    debugPrint('$url');
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      throw '無法開啟網址: $url';
+    }
   }
 
   void _onQRViewCreated(QRViewController controller) {
@@ -240,36 +290,3 @@ class _QRViewExampleState extends State<QRViewExample> {
     super.dispose();
   }
 }
-
-// MaterialColor generateMaterialColor(Color color) {
-//   return MaterialColor(color.value, {
-//     50: tintColor(color, 0.9),
-//     100: tintColor(color, 0.8),
-//     200: tintColor(color, 0.6),
-//     300: tintColor(color, 0.4),
-//     400: tintColor(color, 0.2),
-//     500: color,
-//     600: shadeColor(color, 0.1),
-//     700: shadeColor(color, 0.2),
-//     800: shadeColor(color, 0.3),
-//     900: shadeColor(color, 0.4),
-//   });
-// }
-//
-// int tintValue(int value, double factor) =>
-//     max(0, min((value + ((255 - value) * factor)).round(), 255));
-//
-// Color tintColor(Color color, double factor) => Color.fromRGBO(
-//     tintValue(color.red, factor),
-//     tintValue(color.green, factor),
-//     tintValue(color.blue, factor),
-//     1);
-//
-// int shadeValue(int value, double factor) =>
-//     max(0, min(value - (value * factor).round(), 255));
-//
-// Color shadeColor(Color color, double factor) => Color.fromRGBO(
-//     shadeValue(color.red, factor),
-//     shadeValue(color.green, factor),
-//     shadeValue(color.blue, factor),
-//     1);
